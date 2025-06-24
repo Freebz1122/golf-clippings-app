@@ -11,7 +11,8 @@ const urlsToCache = [
   '/images/Thursday.png',
   '/images/Friday.png',
   '/images/Saturday.png',
-  '/images/Sunday.png'
+  '/images/Sunday.png',
+  '/offline.html'
 ];
 
 self.addEventListener('install', (event) => {
