@@ -13,8 +13,8 @@ exports.handler = async (event, context) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'your-email@gmail.com', // Replace with your Gmail address
-      pass: 'your-app-specific-password', // Replace with App Password
+      user: 'sat0rittv@gmail.com', // Replace with your Gmail address
+      pass: 'egxl bqsk ypmx wrzo', // Replace with App Password
     },
   });
 
@@ -23,8 +23,8 @@ exports.handler = async (event, context) => {
   const csvData = Buffer.from(csv, 'base64').toString('utf-8');
 
   const mailOptions = {
-    from: 'your-email@gmail.com', // Replace with your Gmail address
-    to: 'manager@example.com', // Replace with your manager's email
+    from: 'sat0rittv@gmail.com', // Replace with your Gmail address
+    to: 'dfreeborough@live.co.uk', // Replace with your manager's email
     subject: emailSubject,
     text: emailBody,
     attachments: [

@@ -1,15 +1,17 @@
 {
-  "name": "ganton-gc-grass-tracker",
-  "version": "1.0.0",
+  "name": "Ganton GC Grass Clippings",
+  "short_name": "Ganton Grass",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#2f4f2f",
+  "theme_color": "#2f4f2f",
   "description": "A Progressive Web App for tracking grass clippings at Ganton Golf Club with offline support.",
-  "main": "sw.js",
-  "scripts": {
-    "build": "echo 'No build step needed' || true"  
-  },
-  "dependencies": {
-    "nodemailer": "^7.0.3"  
-  },
-  "engines": {
-    "node": ">=18.0.0"  
-  }
+  "icons": [
+    { "src": "/images/logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/images/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "scope": "/",
+  "orientation": "portrait",
+  "prefer_related_applications": false,
+  "related_applications": []
 }
