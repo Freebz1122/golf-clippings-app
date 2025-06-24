@@ -1,0 +1,5 @@
+[build]
+command = "npm install && netlify build"
+publish = "/"
+[functions]
+directory = "functions"

@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#2f4f2f">
+  <link rel="manifest" href="/manifest.json">
+  <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Merriweather&family=Lato&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(to bottom right, #d0f5d0, #a0e6a0); display: flex; justify-content: center; align-items: center; min-height:100vh; overflow-x: hidden; }
+    .container { width: 100%; padding: 0.5rem; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+    .card { background-color: #1f472c; padding: 0.75rem 1.5rem 2rem; border-radius: 24px; max-width: 380px; width: 100%; text-align: center; color: #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.15); position: relative; margin-top: 1rem; }
+    .logo { width: 120px; height: 120px; margin-bottom: 0.25rem; object-fit: contain; }
+    .date { font-size: 1.2rem; margin-top: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; }
+    .calendar-icon { margin-left: 0.4rem; }
+    .circle { width: 120px; height: 120px; border-radius: 50%; display: flex; justify-content: center; align-items: center; position: relative; margin: 0 auto; background-color: transparent; }
+    .subheading { font-size: 1.2rem; margin: 1rem 0 1rem 0; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+    th, td { border: 1px solid black; padding: 0.5rem; text-align: center; color: #fff; }
+    th { background-color: #d3d3d3; color: #333; }
+    .large-button { font-size: 1.0rem; padding: 0.75rem; width: 100%; border-radius: 12px; border: none; cursor: pointer; margin: 0.5rem 0; }
+    .bg-green-500 { background-color: #4caf50; color: #fff; }
+    .bg-red-500 { background-color: #f44336; color: #fff; }
+    .bg-blue-500 { background-color: #2196f3; color: #fff; }
+    .date-container { display: inline-flex; align-items: center; }
+    .calendar-button { width: 40px; height: 40px; background: url('/images/calendar.png') no-repeat center; background-size: contain; border: none; cursor: pointer; margin-left: 0.4rem; }
+    .date-picker { width: 40px; height: 40px; opacity: 0; cursor: pointer; position: absolute; }
+    .editable { cursor: pointer; }
+    .edit-input { width: 60px; padding: 0.25rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
+    .height-input { width: 200px; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; text-align: center; margin-bottom: 1rem; }
+    .title {
+      color: #F5F2DA;       /* cream */
+      font-family: 'Merriweather', serif;
+      font-size: 24px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .subtitle {
+      color: #E6D8A1;       /* soft gold */
+      font-family: 'Lato', sans-serif;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+      text-align: center;
+    }
+    .info-button {
+      width: 40px;
+      height: 40px;
+      background: url('/images/info.png') no-repeat center;
+      background-size: contain;
+      border: none;
+      cursor: pointer;
+      position: absolute;
+      left: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: transparent;
+    }
+    .info-modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #1f472c;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      color: #fff;
+      z-index: 1000;
+      max-width: 800px;
+      text-align: left;
+    }
+    .info-modal.active { display: block; }
+    .direction-container {
+      position: relative;
+      text-align: center;
+      margin: 0 auto;
+      padding: 0.5rem 0;
+    }
+    #directionImage {
+      width: 120px;
+      height: 120px;
+      filter: brightness(1.2) contrast(1.2);
+    }
+    #reportImageContainer {
+      margin-top: 1rem;
+      display: none;
+    }
+    #reportImage {
+      max-width: 100%;
+    }
+    @media (max-width: 480px) {
+      .card { padding: 0.5rem 1rem 1.5rem; }
+      .direction-container { padding: 0.25rem 0; }
+      .info-button { left: 1rem; }
+      .info-modal { max-width: 360px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="mainScreen" class="card screen">
+      <img src="/images/logo.png" alt="GANTON GC Logo" class="logo">
+      <div class="title">CLIPPING DATA</div>
+      <div class="subtitle">Precision tracking for championship greens</div>
+      <div class="date">
+        <span id="currentDate">Tuesday, 24 June 2025</span>
+        <div class="date-container">
+          <div class="calendar-button">
+            <input type="date" id="datePicker" class="date-picker">
+          </div>
+        </div>
+      </div>
+      <div class="direction-container">
+        <button id="infoButton" class="info-button"></button>
+        <div id="directionCircle" class="circle">
+          <img id="directionImage" src="/images/Tuesday.png" alt="Direction Image" style="object-fit: cover;">
+        </div>
+      </div>
+      <p id="directionInfo" class="subheading">NC 10-4 & Chipping Green</p>
+      <input type="number" id="heightOfCut" class="height-input" placeholder="HOC if known (mm)" step="0.1" min="0">
+      <button id="startButton" class="large-button bg-red-500">Start</button>
+      <div id="infoModal" class="info-modal">
+        CC = Clean up cut<br>
+        NC = No clean up cut<br>
+        C = Clockwise<br>
+        AC = Anticlockwise<br>
+        12 o'clock is determined from the back of the green aiming towards the 150 yard marker.<br>
+        Apart from the PG where 12 o'clock is facing the clubhouse
+      </div>
+    </div>
+
+    <div id="chartScreen" class="card screen">
+      <div id="chartContainer">
+        <table>
+          <thead>
+            <tr>
+              <th>Hole</th>
+              <th>Litres</th>
+            </tr>
+          </thead>
+          <tbody id="chartTableBody"></tbody>
+        </table>
+      </div>
+      <button id="backToMain" class="large-button bg-blue-500">Back</button>
+      <button id="finishButton" class="large-button bg-green-500">Finish</button>
+    </div>
+
+    <div id="reportScreen" class="card screen">
+      <div id="reportContainer">
+        <table>
+          <thead>
+            <tr>
+              <th>Hole</th>
+              <th>Litres</th>
+              <th>mL/m²</th>
+            </tr>
+          </thead>
+          <tbody id="reportTableBody"></tbody>
+        </table>
+      </div>
+      <button id="backToChart" class="large-button bg-blue-500">Back</button>
+      <button id="sendReport" class="large-button bg-green-500">Send Report</button>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyD88w9BSw81D8O9SxlXR8HJDc6ec--IJF4",
+      authDomain: "gantongcgrasstracker.firebaseapp.com",
+      projectId: "gantongcgrasstracker",
+      storageBucket: "gantongcgrasstracker.firebasestorage.app",
+      messagingSenderId: "655536324689",
+      appId: "1:655536324689:web:be13f462ee39bee3b7b870"
+    };
+
+    let db = null;
+    if (navigator.onLine) {
+      try {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+        console.log('Firebase app initialized with config:', firebaseConfig);
+        document.dispatchEvent(new Event('firebaseReady'));
+      } catch (error) {
+        console.error('Firebase initialization error:', error.message);
+        alert('Failed to initialize Firebase. Check console for details.');
+      }
+    } else {
+      console.log('Offline: Firebase not initialized');
+      alert('Offline mode: Data will be saved locally and synced when online.');
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(() => {
+        console.log('Service Worker registered');
+      }).catch(error => {
+        console.error('Service Worker registration failed:', error);
+        alert('Service Worker failed to register. Some features may not work offline.');
+      });
+    }
+
+    let currentDate = new Date();
+    let lastLoadedDate = null;
+    let heightOfCut = null;
+    let hasDataEntered = false;
+    const sessionId = Date.now().toString();
+    const managerEmail = "manager@example.com"; // Replace with your manager's email
+
+    const offlineQueue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+    const onlineDataCache = JSON.parse(localStorage.getItem('onlineDataCache') || '{}');
+    const savedScreen = localStorage.getItem('activeScreen');
+    let unsubscribeChart = null;
+    let unsubscribeReport = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const screens = ['mainScreen', 'chartScreen', 'reportScreen'];
+      screens.forEach(screenId => {
+        const screen = document.getElementById(screenId);
+        if (screen) screen.classList.remove('active');
+      });
+      if (savedScreen && document.getElementById(savedScreen)) {
+        document.getElementById(savedScreen).classList.add('active');
+        if (savedScreen === 'chartScreen') {
+          restoreChartData();
+        } else if (savedScreen === 'reportScreen') {
+          restoreReportData();
+        }
+      } else {
+        document.getElementById('mainScreen').classList.add('active');
+      }
+
+      hasDataEntered = offlineQueue.length > 0 || Object.keys(onlineDataCache).length > 0;
+      loadHeightOfCut();
+      updateStartButton();
+    });
+
+    function saveScreen(screenId) {
+      localStorage.setItem('activeScreen', screenId);
+    }
+
+    function setDate(date = currentDate) {
+      const currentDateElement = document.getElementById('currentDate');
+      if (currentDateElement) {
+        currentDateElement.textContent = date.toLocaleString('en-GB', { 
+          weekday: 'long', 
+          day: 'numeric', 
+          month: 'long', 
+          year: 'numeric'
+        }).replace(/(\d+)(st|nd|rd|th)/, '$1$2');
+        updateDirection(date);
+        if (lastLoadedDate && lastLoadedDate.toDateString() !== date.toDateString()) {
+          hasDataEntered = false;
+          localStorage.clear();
+          heightOfCut = null;
+          loadHeightOfCut();
+          if (unsubscribeChart) unsubscribeChart();
+          if (unsubscribeReport) unsubscribeReport();
+          loadChartData(true);
+          updateStartButton();
+        } else if (!lastLoadedDate) {
+          loadChartData();
+        }
+        lastLoadedDate = new Date(date);
+      }
+    }
+
+    function updateDirection(date) {
+      const day = date.toLocaleString('en-us', { weekday: 'long' });
+      const directionCircle = document.getElementById('directionCircle');
+      const directionImage = document.getElementById('directionImage');
+      const directionInfo = document.getElementById('directionInfo');
+      if (directionCircle && directionImage && directionInfo) {
+        const directions = {
+          "Monday": { angle: 270, info: "CC (C) 12-6 & 1st tee", image: "/images/Monday.png" },
+          "Tuesday": { angle: 45, info: "NC 10-4 & Chipping Green", image: "/images/Tuesday.png" },
+          "Wednesday": { angle: 0, info: "CC (AC) 8-2 & 1st tee", image: "/images/Wednesday.png" },
+          "Thursday": { angle: 90, info: "NC 9-3 & Chipping Green", image: "/images/Thursday.png" },
+          "Friday": { angle: 270, info: "CC (C) 12-6 & 1st tee", image: "/images/Friday.png" },
+          "Saturday": { angle: 315, info: "NC 7-1 1st tee & Chipping Green", image: "/images/Saturday.png" },
+          "Sunday": { angle: 180, info: "CC (AC) 11-5 & Chipping Green", image: "/images/Sunday.png" }
+        };
+        const { angle, info, image } = directions[day] || directions["Tuesday"];
+        directionImage.src = image;
+        directionInfo.textContent = info;
+      }
+    }
+
+    function loadChartData(reset = false) {
+      const chartTableBody = document.getElementById('chartTableBody');
+      if (chartTableBody && db) {
+        if (unsubscribeChart) unsubscribeChart();
+        unsubscribeChart = db.collection('grassData')
+          .onSnapshot((snapshot) => {
+            let data = {};
+            snapshot.forEach((doc) => {
+              const hole = doc.data().hole;
+              const date = doc.data().date;
+              const key = `${hole}_${date}`;
+              const amount = doc.data().amount || 0;
+              const timestamp = doc.data().timestamp || doc.data().date ? new Date(doc.data().date).getTime() : Date.now();
+              if (!data[key] || timestamp > (data[key]?.timestamp || 0)) {
+                data[key] = { amount, timestamp };
+              }
+            });
+            const offlineQueue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+            offlineQueue.forEach(item => {
+              const key = `${item.hole}_${item.date}`;
+              if (!data[key] || item.timestamp > (data[key]?.timestamp || 0)) {
+                data[key] = { amount: item.amount || 0, timestamp: item.timestamp || Date.now() };
+              }
+            });
+            localStorage.setItem('onlineDataCache', JSON.stringify(data));
+            renderChartData(data, reset);
+            syncOfflineData();
+          }, (error) => {
+            console.error('Error loading chart data:', error);
+            alert('Error loading chart data. Falling back to cached data.');
+            const offlineData = JSON.parse(localStorage.getItem('onlineDataCache') || '{}');
+            let data = { ...offlineData };
+            const offlineQueue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+            offlineQueue.forEach(item => {
+              const key = `${item.hole}_${item.date}`;
+              if (!data[key] || item.timestamp > (data[key]?.timestamp || 0)) {
+                data[key] = { amount: item.amount || 0, timestamp: item.timestamp || Date.now() };
+              }
+            });
+            renderChartData(data, reset);
+          });
+      } else if (chartTableBody && !db) {
+        const offlineData = JSON.parse(localStorage.getItem('onlineDataCache') || '{}');
+        let data = { ...offlineData };
+        const offlineQueue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+        offlineQueue.forEach(item => {
+          const key = `${item.hole}_${item.date}`;
+          if (!data[key] || item.timestamp > (data[key]?.timestamp || 0)) {
+            data[key] = { amount: item.amount || 0, timestamp: item.timestamp || Date.now() };
+          }
+        });
+        renderChartData(data, reset);
+      }
+    }
+
+    function renderChartData(data, reset) {
+      const chartTableBody = document.getElementById('chartTableBody');
+      if (chartTableBody) {
+        const squareMeters = {
+          '1': 500, '2': 450, '3': 480, '4': 520, '5': 470,
+          '6': 490, '7': 510, '8': 460, '9': 500, '10': 480,
+          '11': 490, '12': 520, '13': 470, '14': 500, '15': 450,
+          '16': 510, '17': 480, '18': 490, 'CG': 600, 'PG': 700
+        };
+        if (reset && navigator.onLine && db) {
+          db.collection('grassData').get().then((snapshot) => {
+            const batch = db.batch();
+            snapshot.forEach((doc) => batch.delete(doc.ref));
+            return batch.commit();
+          }).then(() => {
+            console.log('Data reset due to date change');
+            localStorage.clear();
+            data = {};
+            renderChartData(data, false);
+          }).catch(error => {
+            console.error('Error resetting data:', error);
+            alert('Error resetting data. Some old data may persist.');
+          });
+        }
+        let html = '';
+        const holes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', 'CG', 'PG'];
+        holes.forEach(hole => {
+          const dateKey = currentDate.toLocaleString('en-GB', { 
+            weekday: 'long', 
+            day: 'numeric', 
+            month: 'long', 
+            year: 'numeric'
+          }).replace(/(\d+)(st|nd|rd|th)/, '$1$2');
+          const key = `${hole}_${dateKey}`;
+          const litres = data[key] ? data[key].amount : 0;
+          html += `<tr>
+            <td>${hole === 'CG' ? 'CG' : hole === 'PG' ? 'PG' : `Hole ${hole}`}</td>
+            <td class="editable" data-initial="${litres === 0 ? '' : litres.toFixed(2)}">${litres === 0 ? '0' : litres.toFixed(2)}</td>
+          </tr>`;
+        });
+        chartTableBody.innerHTML = html;
+        hasDataEntered = Object.values(data).some(item => item.amount > 0) || offlineQueue.length > 0;
+        updateStartButton();
+      }
+    }
+
+    function restoreChartData() {
+      loadChartData();
+    }
+
+    function loadReportData() {
+      const reportTableBody = document.getElementById('reportTableBody');
+      if (reportTableBody && db) {
+        if (unsubscribeReport) unsubscribeReport();
+        unsubscribeReport = db.collection('grassData')
+          .onSnapshot((snapshot) => {
+            let data = {};
+            snapshot.forEach((doc) => {
+              const hole = doc.data().hole;
+              const date = doc.data().date;
+              const key = `${hole}_${date}`;
+              const amount = doc.data().amount || 0;
+              const height = doc.data().heightOfCut;
+              const timestamp = doc.data().timestamp || doc.data().date ? new Date(doc.data().date).getTime() : Date.now();
+              if (!data[key] || timestamp > (data[key]?.timestamp || 0)) {
+                data[key] = { litres: amount, height, timestamp };
+              }
+            });
+            const offlineQueue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+            offlineQueue.forEach(item => {
+              const key = `${item.hole}_${item.date}`;
+              if (!data[key] || item.timestamp > (data[key]?.timestamp || 0)) {
+                data[key] = { litres: item.amount || 0, height: item.heightOfCut || heightOfCut || null, timestamp: item.timestamp || Date.now() };
+              }
+            });
+            localStorage.setItem('onlineDataCache', JSON.stringify(data));
+            renderReportData(data);
+          }, (error) => {
+            console.error('Error loading report data:', error);
+            alert('Error loading report data. Falling back to cached data.');
+            const offlineData = JSON.parse(localStorage.getItem('onlineDataCache') || '{}');
+            let data = { ...offlineData };
+            const offlineQueue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+            offlineQueue.forEach(item => {
+              const key = `${item.hole}_${item.date}`;
+              if (!data[key] || item.timestamp > (data[key]?.timestamp || 0)) {
+                data[key] = { litres: item.amount || 0, height: item.heightOfCut || heightOfCut || null, timestamp: item.timestamp || Date.now() };
+              }
+            });
+            renderReportData(data);
+          });
+      } else if (reportTableBody && !db) {
+        const offlineData = JSON.parse(localStorage.getItem('onlineDataCache') || '{}');
+        let data = { ...offlineData };
+        const offlineQueue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+        offlineQueue.forEach(item => {
+          const key = `${item.hole}_${item.date}`;
+          if (!data[key] || item.timestamp > (data[key]?.timestamp || 0)) {
+            data[key] = { litres: item.amount || 0, height: item.heightOfCut || heightOfCut || null, timestamp: item.timestamp || Date.now() };
+          }
+        });
+        renderReportData(data);
+      }
+    }
+
+    function renderReportData(data) {
+      const reportTableBody = document.getElementById('reportTableBody');
+      if (reportTableBody) {
+        const squareMeters = {
+          '1': 500, '2': 450, '3': 480, '4': 520, '5': 470,
+          '6': 490, '7': 510, '8': 460, '9': 500, '10': 480,
+          '11': 490, '12': 520, '13': 470, '14': 500, '15': 450,
+          '16': 510, '17': 480, '18': 490, 'CG': 600, 'PG': 700
+        };
+        const holes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', 'CG', 'PG'];
+        let html = '';
+        holes.forEach(hole => {
+          const dateKey = currentDate.toLocaleString('en-GB', { 
+            weekday: 'long', 
+            day: 'numeric', 
+            month: 'long', 
+            year: 'numeric'
+          }).replace(/(\d+)(st|nd|rd|th)/, '$1$2');
+          const key = `${hole}_${dateKey}`;
+          const entry = data[key] || { litres: 0, height: heightOfCut || null };
+          const litres = entry.litres || 0;
+          const height = entry.height;
+          const area = squareMeters[hole] || 100;
+          const mlPerSqMeter = (litres / area) * 1000;
+          html += `<tr>
+            <td>${hole === 'CG' ? 'CG' : hole === 'PG' ? 'PG' : `Hole ${hole}`}</td>
+            <td>${litres === 0 ? '0L' : `${litres.toFixed(0)}L`}</td>
+            <td>${mlPerSqMeter.toFixed(0)} ml/m²</td>
+          </tr>`;
+        });
+        reportTableBody.innerHTML = html;
+      }
+    }
+
+    function restoreReportData() {
+      loadReportData();
+    }
+
+    function updateStartButton() {
+      const startButton = document.getElementById('startButton');
+      if (startButton) {
+        if (hasDataEntered) {
+          startButton.textContent = 'Continue';
+          startButton.className = 'large-button bg-green-500';
+        } else {
+          startButton.textContent = 'Start';
+          startButton.className = 'large-button bg-red-500';
+        }
+      }
+    }
+
+    function syncOfflineData() {
+      if (navigator.onLine && db && 'serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        const offlineQueue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+        if (offlineQueue.length > 0) {
+          offlineQueue.forEach(item => {
+            const { hole, amount, date, direction, heightOfCut, timestamp } = item;
+            db.collection('grassData').add({
+              hole, amount, date, direction, heightOfCut, timestamp
+            }).then(() => {
+              const updatedQueue = offlineQueue.filter(q => q !== item);
+              localStorage.setItem('offlineQueue', JSON.stringify(updatedQueue));
+              console.log('Synced offline data:', item);
+              loadChartData();
+            }).catch(error => {
+              console.error('Sync error:', error);
+              alert('Error syncing offline data. Check console.');
+            });
+          });
+        }
+      }
+    }
+
+    function loadHeightOfCut() {
+      if (navigator.onLine && db) {
+        const dateKey = currentDate.toLocaleString('en-GB', { 
+          weekday: 'long', 
+          day: 'numeric', 
+          month: 'long', 
+          year: 'numeric'
+        }).replace(/(\d+)(st|nd|rd|th)/, '$1$2');
+        db.collection('heightOfCut').where('date', '==', dateKey).limit(1).get()
+          .then((querySnapshot) => {
+            if (!querySnapshot.empty) {
+              const doc = querySnapshot.docs[0];
+              heightOfCut = doc.data().height || null;
+              console.log('Loaded height of cut:', heightOfCut);
+              const heightInput = document.getElementById('heightOfCut');
+              if (heightInput) heightInput.value = heightOfCut || '';
+            } else {
+              heightOfCut = null;
+              const heightInput = document.getElementById('heightOfCut');
+              if (heightInput) heightInput.value = '';
+            }
+          }).catch(error => {
+            console.error('Error loading height of cut:', error);
+            alert('Error loading height of cut. Using default value.');
+          });
+      }
+    }
+
+    function saveHeightOfCut(value) {
+      if (navigator.onLine && db) {
+        const dateKey = currentDate.toLocaleString('en-GB', { 
+          weekday: 'long', 
+          day: 'numeric', 
+          month: 'long', 
+          year: 'numeric'
+        }).replace(/(\d+)(st|nd|rd|th)/, '$1$2');
+        db.collection('heightOfCut').where('date', '==', dateKey).limit(1).get()
+          .then((querySnapshot) => {
+            const batch = db.batch();
+            if (!querySnapshot.empty) {
+              querySnapshot.forEach(doc => batch.update(doc.ref, { height: value, date: dateKey, timestamp: Date.now() }));
+            } else {
+              batch.set(db.collection('heightOfCut').doc(), { height: value, date: dateKey, timestamp: Date.now() });
+            }
+            return batch.commit();
+          }).then(() => {
+            heightOfCut = value;
+            console.log('Saved height of cut:', heightOfCut);
+            loadChartData();
+          }).catch(error => {
+            console.error('Error saving height of cut:', error);
+            alert('Error saving height of cut. Data may not be updated.');
+          });
+      } else {
+        heightOfCut = value;
+        console.log('Saved height of cut locally:', heightOfCut);
+      }
+    }
+
+    setDate();
+    setTimeout(() => setDate(), 1000);
+
+    const datePicker = document.getElementById('datePicker');
+    const calendarButton = document.querySelector('.calendar-button');
+    if (datePicker && calendarButton) {
+      datePicker.value = currentDate.toISOString().split('T')[0];
+      calendarButton.addEventListener('click', () => {
+        console.log('Calendar button clicked');
+        datePicker.showPicker();
+      });
+      datePicker.addEventListener('change', (e) => {
+        console.log('Date changed to:', e.target.value);
+        const date = new Date(e.target.value);
+        if (!isNaN(date.getTime())) {
+          currentDate = date;
+          setDate(date);
+        } else {
+          alert('Invalid date selected. Please try again.');
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM fully loaded');
+      const mainScreen = document.getElementById('mainScreen');
+      const chartScreen = document.getElementById('chartScreen');
+      const reportScreen = document.getElementById('reportScreen');
+      const backButton = document.getElementById('backToMain');
+      const chartTableBody = document.getElementById('chartTableBody');
+      const startButton = document.getElementById('startButton');
+      const finishButton = document.getElementById('finishButton');
+      const backToChart = document.getElementById('backToChart');
+      const sendReport = document.getElementById('sendReport');
+      const heightOfCutInput = document.getElementById('heightOfCut');
+      const infoButton = document.getElementById('infoButton');
+      const infoModal = document.getElementById('infoModal');
+
+      if (mainScreen && chartScreen && reportScreen && backButton && chartTableBody && startButton && finishButton && backToChart && sendReport && heightOfCutInput && infoButton && infoModal) {
+        console.log('All required elements found');
+
+        function saveScreen(screenId) {
+          localStorage.setItem('activeScreen', screenId);
+        }
+
+        heightOfCutInput.addEventListener('change', (e) => {
+          const value = parseFloat(e.target.value) || null;
+          if (value !== heightOfCut) {
+            saveHeightOfCut(value);
+            e.target.value = value || '';
+          }
+        });
+
+        startButton.addEventListener('click', () => {
+          console.log('Start/Continue button clicked');
+          saveScreen('chartScreen');
+          mainScreen.classList.remove('active');
+          chartScreen.classList.add('active');
+          loadChartData();
+        });
+
+        backButton.addEventListener('click', () => {
+          console.log('Back button clicked');
+          saveScreen('mainScreen');
+          chartScreen.classList.remove('active');
+          mainScreen.classList.add('active');
+        });
+
+        finishButton.addEventListener('click', () => {
+          console.log('Finish button clicked');
+          saveScreen('reportScreen');
+          chartScreen.classList.remove('active');
+          reportScreen.classList.add('active');
+          loadReportData();
+        });
+
+        backToChart.addEventListener('click', () => {
+          console.log('Back to Chart button clicked');
+          saveScreen('chartScreen');
+          reportScreen.classList.remove('active');
+          chartScreen.classList.add('active');
+        });
+
+        sendReport.addEventListener('click', () => {
+          console.log('Send Report button clicked');
+          const reportTableBody = document.getElementById('reportTableBody');
+          if (reportTableBody) {
+            if (unsubscribeReport) unsubscribeReport();
+            loadReportData();
+            setTimeout(() => {
+              const userName = prompt('Please enter your name (optional):') || 'Anonymous';
+              const rows = reportTableBody.getElementsByTagName('tr');
+              let csvContent = "Hole,Litres,mL/m²\n";
+              for (let row of rows) {
+                const cells = row.getElementsByTagName('td');
+                if (cells.length === 3) {
+                  csvContent += `${cells[0].textContent},${cells[1].textContent.replace('L', '')},${cells[2].textContent}\n`;
+                }
+              }
+
+              const formData = new FormData();
+              formData.append('csv', btoa(csvContent));
+              formData.append('date', currentDate.toLocaleDateString('en-GB'));
+              formData.append('heightOfCut', heightOfCut || 'N/A');
+              formData.append('userName', userName);
+
+              fetch('/.netlify/functions/send-email', {
+                method: 'POST',
+                body: formData
+              })
+                .then(response => {
+                  if (response.ok) {
+                    alert('Report sent to manager via email.');
+                  } else {
+                    throw new Error('Email sending failed');
+                  }
+                })
+                .catch(error => {
+                  console.error('Error sending email:', error);
+                  alert('Failed to send email. Check console for details.');
+                });
+            }, 500);
+          }
+        });
+
+        infoButton.addEventListener('click', () => {
+          console.log('Info button clicked');
+          infoModal.classList.add('active');
+        });
+
+        infoModal.addEventListener('click', (e) => {
+          if (e.target === infoModal) {
+            infoModal.classList.remove('active');
+          }
+        });
+
+        chartTableBody.addEventListener('click', (e) => {
+          if (e.target.tagName === 'TD' && e.target.cellIndex === 1) {
+            const td = e.target;
+            const tr = td.parentElement;
+            const hole = tr.cells[0].textContent.replace('Hole ', '').replace('Chipping Green', 'CG').replace('Putting Green', 'PG');
+            const initialValue = td.getAttribute('data-initial') || '';
+            const oldLitres = parseFloat(td.textContent) || 0;
+
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.className = 'edit-input';
+            input.value = initialValue === '' ? '' : oldLitres.toString();
+            input.style.width = td.offsetWidth + 'px';
+
+            input.addEventListener('blur', () => {
+              const newLitres = parseFloat(input.value) || 0;
+              if (newLitres !== oldLitres) {
+                if (!navigator.onLine) {
+                  let offlineQueue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+                  const dateKey = currentDate.toLocaleString('en-GB', { 
+                    weekday: 'long', 
+                    day: 'numeric', 
+                    month: 'long', 
+                    year: 'numeric'
+                  }).replace(/(\d+)(st|nd|rd|th)/, '$1$2');
+                  const existingIndex = offlineQueue.findIndex(item => item.hole === hole && item.date === dateKey);
+                  if (existingIndex > -1) {
+                    offlineQueue[existingIndex].amount = newLitres;
+                    offlineQueue[existingIndex].timestamp = Date.now();
+                  } else {
+                    offlineQueue.push({
+                      hole: hole,
+                      amount: newLitres,
+                      date: dateKey,
+                      direction: document.getElementById('directionInfo').textContent,
+                      heightOfCut: heightOfCut || null,
+                      timestamp: Date.now()
+                    });
+                  }
+                  localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
+                  alert('Offline: Data saved locally. Will sync when online.');
+                  loadChartData();
+                } else if (db) {
+                  db.collection('grassData')
+                    .where('hole', '==', hole)
+                    .where('date', '==', currentDate.toLocaleString('en-GB', { 
+                      weekday: 'long', 
+                      day: 'numeric', 
+                      month: 'long', 
+                      year: 'numeric'
+                    }).replace(/(\d+)(st|nd|rd|th)/, '$1$2'))
+                    .limit(1)
+                    .get()
+                    .then((querySnapshot) => {
+                      if (!querySnapshot.empty) {
+                        const doc = querySnapshot.docs[0];
+                        return db.collection('grassData').doc(doc.id).update({
+                          amount: newLitres,
+                          date: currentDate.toLocaleString('en-GB', { 
+                            weekday: 'long', 
+                            day: 'numeric', 
+                            month: 'long', 
+                            year: 'numeric'
+                          }).replace(/(\d+)(st|nd|rd|th)/, '$1$2'),
+                          direction: document.getElementById('directionInfo').textContent,
+                          heightOfCut: heightOfCut || null,
+                          timestamp: Date.now()
+                        });
+                      } else {
+                        return db.collection('grassData').add({
+                          hole: hole,
+                          amount: newLitres,
+                          date: currentDate.toLocaleString('en-GB', { 
+                            weekday: 'long', 
+                            day: 'numeric', 
+                            month: 'long', 
+                            year: 'numeric'
+                          }).replace(/(\d+)(st|nd|rd|th)/, '$1$2'),
+                          direction: document.getElementById('directionInfo').textContent,
+                          heightOfCut: heightOfCut || null,
+                          timestamp: Date.now()
+                        });
+                      }
+                    })
+                    .then(() => {
+                      loadChartData();
+                    })
+                    .catch(error => {
+                      console.error('Error updating litres:', error);
+                      alert('Error updating litres. Check console.');
+                    });
+                }
+              }
+              td.textContent = newLitres === 0 ? '0' : newLitres.toFixed(2);
+              td.setAttribute('data-initial', newLitres === 0 ? '' : newLitres.toFixed(2));
+              td.className = 'editable';
+              hasDataEntered = true;
+              updateStartButton();
+            });
+
+            input.addEventListener('keypress', (e) => {
+              if (e.key === 'Enter') input.blur();
+            });
+
+            td.textContent = '';
+            td.appendChild(input);
+            input.focus();
+            td.className = '';
+          }
+        });
+      } else {
+        console.error('One or more elements not found:', {
+          mainScreen, chartScreen, reportScreen, backButton,
+          chartTableBody, startButton, finishButton, backToChart, sendReport, heightOfCutInput, infoButton, infoModal
+        });
+        alert('Critical elements missing. App may not function correctly.');
+      }
+
+      window.addEventListener('online', () => {
+        syncOfflineData();
+        loadChartData();
+        loadHeightOfCut();
+      });
+
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data.type === 'SYNC_SUCCESS') {
+          console.log('Synced offline data:', event.data.item);
+          const updatedQueue = JSON.parse(localStorage.getItem('offlineQueue') || '[]').filter(q => q !== event.data.item);
+          localStorage.setItem('offlineQueue', JSON.stringify(updatedQueue));
+          loadChartData();
+        } else if (event.data.type === 'SYNC_ERROR') {
+          console.error('Sync error:', event.data.error);
+          alert('Error syncing offline data. Check console.');
+        }
+      });
+    });
+  </script>
