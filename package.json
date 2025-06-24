@@ -1,15 +1,15 @@
 {
-  "name": "clippingdata",
+  "name": "ganton-gc-grass-tracker",
   "version": "1.0.0",
-  "lockfileVersion": 3,
-  "requires": true,
   "description": "A Progressive Web App for tracking grass clippings at Ganton Golf Club with offline support.",
   "main": "sw.js",
-  "packages": {},
-  "engines": {
-    "node": ">=18.0.0"
-  },
   "scripts": {
     "build": "echo 'No build step needed' || true"
+  },
+  "dependencies": {
+    "nodemailer": "^7.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
