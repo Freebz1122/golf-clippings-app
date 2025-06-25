@@ -14,7 +14,7 @@ exports.handler = async (event, context) => {
   });
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: 'dfreeborough@live.co.uk',
+    to: 'dfreeborough@live.co.uk', 
     subject: `Clipping Data Report - ${date}`,
     text: `Dear Manager,\n\nPlease find attached the Clipping Data report for ${date}. The Height of Cut is ${heightOfCut} mm. Submitted by ${userName}.\n\nBest regards,\nGanton GC Team`,
     attachments: [{ filename: 'clipping_data.csv', content: Buffer.from(csv, 'base64').toString('utf-8') }],
