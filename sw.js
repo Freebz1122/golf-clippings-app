@@ -1,18 +1,8 @@
 const CACHE_NAME = 'ganton-grass-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/images/logo.png',
-  '/images/calendar.png',
-  '/images/Monday.png',
-  '/images/Tuesday.png',
-  '/images/Wednesday.png',
-  '/images/Thursday.png',
-  '/images/Friday.png',
-  '/images/Saturday.png',
-  '/images/Sunday.png',
-  '/offline.html'
+  '/', '/index.html', '/manifest.json', '/images/logo.png', '/images/calendar.png',
+  '/images/Monday.png', '/images/Tuesday.png', '/images/Wednesday.png', '/images/Thursday.png',
+  '/images/Friday.png', '/images/Saturday.png', '/images/Sunday.png', '/offline.html', '/favicon.ico'
 ];
 
 self.addEventListener('install', (event) => {
